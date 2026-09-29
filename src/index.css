@@ -1,0 +1,114 @@
+@import "tailwindcss";
+
+@layer base {
+  body {
+    background-color: #f1f5f9;
+    color: #1e293b;
+    margin: 0;
+    padding: 0;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+}
+
+/* Custom scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #f1f5f9;
+}
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* ========================================================
+   SINGLE-PAGE PRINT STYLES (Thermal 80mm / 58mm & Standard)
+   ======================================================== */
+@media print {
+  /* 1. HIDE THE ENTIRE ROOT APP (Forms, Mockups, Navbars, Buttons) */
+  #root,
+  .no-print {
+    display: none !important;
+    visibility: hidden !important;
+    height: 0 !important;
+    overflow: hidden !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  /* 2. BODY RESETS TO PURE WHITE & AUTO HEIGHT */
+  html, body {
+    margin: 0 !important;
+    padding: 0 !important;
+    background: #ffffff !important;
+    color: #000000 !important;
+    height: auto !important;
+    min-height: auto !important;
+    overflow: visible !important;
+  }
+
+  @page {
+    size: auto;
+    margin: 0mm !important;
+  }
+
+  /* 3. MODAL PORTAL CONTAINER RESETS FOR PRINT */
+  .receipt-modal-backdrop {
+    position: static !important;
+    background: transparent !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    display: block !important;
+    width: 100% !important;
+    box-shadow: none !important;
+    backdrop-filter: none !important;
+  }
+
+  .receipt-modal-card {
+    position: static !important;
+    background: transparent !important;
+    padding: 0 !important;
+    margin: 0 auto !important;
+    box-shadow: none !important;
+    border: none !important;
+    border-radius: 0 !important;
+    max-height: none !important;
+    height: auto !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    overflow: visible !important;
+  }
+
+  /* 4. THE ONLY ELEMENT PRINTED: EXACT SINGLE SLIP */
+  #printable-invoice {
+    margin: 0 auto !important;
+    background: #ffffff !important;
+    border: none !important;
+    box-shadow: none !important;
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+    page-break-after: avoid !important;
+    break-after: avoid !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  #printable-invoice.size-80mm {
+    width: 76mm !important;
+    max-width: 76mm !important;
+    padding: 2mm 3mm !important;
+  }
+
+  #printable-invoice.size-58mm {
+    width: 52mm !important;
+    max-width: 52mm !important;
+    padding: 2mm !important;
+    font-size: 10px !important;
+  }
+}
