@@ -148,7 +148,7 @@ export default function LabInvoiceForm({ defaultRate }) {
   };
 
   return (
-    <div className="w-full max-w-md mx-auto bg-white rounded-3xl shadow-xl overflow-hidden border border-slate-200/80 flex flex-col min-h-[780px]">
+    <div className="w-full flex-1 flex flex-col bg-white">
       {/* Top Mobile Bar with Back Arrow and Switcher */}
       <div className="px-4 pt-3 pb-2 flex items-center justify-between">
         <button

@@ -64,7 +64,7 @@ export default function GramGoldCalculator({ defaultRate }) {
 
   return (
     <div
-      className="w-full max-w-md mx-auto bg-white rounded-3xl shadow-xl overflow-hidden border border-slate-200/80 flex flex-col min-h-[760px] p-5 select-none"
+      className="w-full flex-1 flex flex-col bg-white p-4 select-none"
       dir="rtl"
     >
       {/* Top Header Row */}
