@@ -49,7 +49,7 @@ export default function App() {
               <Scale className="w-5 h-5 stroke-[2.2]" />
             </div>
             <span className="text-[11px] font-sans tracking-tight">
-              گرام کاٹ
+              Calculator
             </span>
           </button>
 
@@ -75,7 +75,7 @@ export default function App() {
               <FileText className="w-5 h-5 stroke-[2.2]" />
             </div>
             <span className="text-[11px] font-sans tracking-tight">
-              لیب انوائس
+              Lab Invoice
             </span>
           </button>
         </nav>
