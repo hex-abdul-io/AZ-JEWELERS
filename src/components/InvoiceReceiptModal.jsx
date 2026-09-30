@@ -9,20 +9,298 @@ import {
 } from 'lucide-react';
 import { formatCurrency, rattiToGrams } from '../utils/goldMath';
 
+function generatePrintableSlipHtml(invoice, paperSize) {
+  const is58 = paperSize === '58mm';
+  const width = is58 ? '52mm' : '76mm';
+  const baseFontSize = is58 ? '10px' : '11px';
+  const titleSize = is58 ? '16px' : '18px';
+
+  return `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>AZ JEWELERS - Invoice #${invoice.invoiceNo}</title>
+      <style>
+        @page {
+          size: auto;
+          margin: 0mm;
+        }
+        * {
+          box-sizing: border-box;
+          margin: 0;
+          padding: 0;
+        }
+        html, body {
+          width: 100%;
+          background: #ffffff;
+          color: #000000;
+          font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+          font-size: ${baseFontSize};
+          line-height: 1.35;
+          margin: 0;
+          padding: 0;
+          -webkit-print-color-adjust: exact;
+          print-color-adjust: exact;
+        }
+        body {
+          display: flex;
+          justify-content: center;
+          padding: 6px;
+        }
+        .slip-container {
+          width: ${width};
+          max-width: 100%;
+          margin: 0 auto;
+          background: #ffffff;
+          padding: 8px 10px;
+          box-sizing: border-box;
+        }
+        .text-center { text-align: center; }
+        .text-right { text-align: right; }
+        .font-bold { font-weight: bold; }
+        .font-mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; }
+        
+        .header {
+          text-align: center;
+          border-bottom: 2px dashed #000000;
+          padding-bottom: 6px;
+          margin-bottom: 8px;
+        }
+        .header h1 {
+          font-size: ${titleSize};
+          font-weight: 900;
+          letter-spacing: 1px;
+          color: #000000;
+          margin-bottom: 2px;
+          text-transform: uppercase;
+        }
+        .header p {
+          font-size: 9px;
+          color: #555555;
+          font-family: ui-monospace, monospace;
+        }
+        .meta-bar {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          font-size: 9.5px;
+          font-weight: bold;
+          margin-top: 6px;
+          padding: 0 2px;
+          color: #1e293b;
+        }
+        
+        .box {
+          border: 1px solid #cbd5e1;
+          border-radius: 6px;
+          background: #f8fafc;
+          padding: 6px 8px;
+          margin-bottom: 8px;
+        }
+        .box-row {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-bottom: 3px;
+        }
+        .box-row:last-child {
+          margin-bottom: 0;
+        }
+        .label {
+          color: #64748b;
+        }
+        .value {
+          font-weight: bold;
+          color: #0f172a;
+        }
+        
+        .table-wrap {
+          border: 1px solid #cbd5e1;
+          border-radius: 6px;
+          overflow: hidden;
+          margin-bottom: 8px;
+        }
+        table {
+          width: 100%;
+          border-collapse: collapse;
+          font-size: ${baseFontSize};
+        }
+        th {
+          background: #f1f5f9;
+          font-weight: bold;
+          padding: 5px 6px;
+          border-bottom: 1px solid #cbd5e1;
+          color: #334155;
+          text-align: left;
+        }
+        td {
+          padding: 5px 6px;
+          border-bottom: 1px solid #e2e8f0;
+          color: #1e293b;
+        }
+        tr:last-child td {
+          border-bottom: none;
+        }
+        .row-cut td {
+          background: #fff1f2;
+          color: #e11d48;
+          font-weight: 600;
+        }
+        .row-net {
+          background: #fefce8;
+          font-weight: bold;
+          border-top: 1px solid #cbd5e1;
+        }
+        .row-net td {
+          color: #047857;
+          font-weight: bold;
+        }
+        
+        .total-box {
+          border: 2px solid #000000;
+          border-radius: 6px;
+          padding: 8px 10px;
+          background: #ffffff;
+          margin-top: 6px;
+        }
+        .total-line {
+          display: flex;
+          justify-content: space-between;
+          align-items: baseline;
+          border-top: 2px dashed #000000;
+          padding-top: 6px;
+          margin-top: 6px;
+          font-size: ${is58 ? '13px' : '15px'};
+          font-weight: 900;
+          color: #000000;
+        }
+      </style>
+    </head>
+    <body>
+      <div class="slip-container">
+        <!-- Header -->
+        <div class="header">
+          <h1>AZ JEWELERS</h1>
+          <p>Lab Invoice • Gold Testing &amp; Calculation Slip</p>
+          <div class="meta-bar">
+            <span>Inv: #${invoice.invoiceNo}</span>
+            <span>Date: ${invoice.date}</span>
+            <span>Time: ${invoice.time}</span>
+          </div>
+        </div>
+
+        <!-- Description & Rate Box -->
+        <div class="box">
+          <div class="box-row">
+            <span class="label">Description:</span>
+            <span class="value">${invoice.description || 'Gold Ring 21K Testing'}</span>
+          </div>
+          <div class="box-row">
+            <span class="label">Rate / Tola:</span>
+            <span class="value font-mono font-bold">${formatCurrency(invoice.ratePerTola)}</span>
+          </div>
+        </div>
+
+        <!-- Weight Breakdown Table -->
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th style="width: 35%;">Type</th>
+                <th style="width: 35%; text-align: center;">T-M-R</th>
+                <th style="width: 30%; text-align: right;">Grams</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td style="font-weight: 500;">Gross Wt</td>
+                <td style="text-align: center; font-weight: bold;" class="font-mono">${invoice.grossWeight.formatted}</td>
+                <td style="text-align: right;" class="font-mono">${rattiToGrams(invoice.grossRatti)}g</td>
+              </tr>
+              <tr class="row-cut">
+                <td>(-) Total Cut</td>
+                <td style="text-align: center;" class="font-mono">${invoice.cutWeight.formatted}</td>
+                <td style="text-align: right;" class="font-mono">${rattiToGrams(invoice.cutRatti)}g</td>
+              </tr>
+              <tr class="row-net">
+                <td style="color: #000;">Net Weight</td>
+                <td style="text-align: center;" class="font-mono">${invoice.netWeight.formatted}</td>
+                <td style="text-align: right;" class="font-mono">${rattiToGrams(invoice.netRatti)}g</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Extra Charges Table -->
+        ${
+          invoice.charges && invoice.charges.length > 0
+            ? `
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th style="width: 60%;">Charges Description</th>
+                  <th style="width: 40%; text-align: right;">Amount</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${invoice.charges
+                  .map(
+                    (c) => `
+                  <tr>
+                    <td>${c.description}</td>
+                    <td style="text-align: right;" class="font-mono">${formatCurrency(c.amount)}</td>
+                  </tr>
+                `
+                  )
+                  .join('')}
+                <tr style="font-weight: bold; background: #f8fafc; border-top: 1px solid #cbd5e1;">
+                  <td>Total Extra</td>
+                  <td style="text-align: right;" class="font-mono">${formatCurrency(invoice.totalCharges)}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        `
+            : ''
+        }
+
+        <!-- Grand Total Box -->
+        <div class="total-box">
+          <div class="box-row">
+            <span class="label">Gold Amount:</span>
+            <span class="value font-mono">${formatCurrency(invoice.goldAmount)}</span>
+          </div>
+          ${
+            invoice.totalCharges > 0
+              ? `
+            <div class="box-row">
+              <span class="label">Extra Charges:</span>
+              <span class="value font-mono">${formatCurrency(invoice.totalCharges)}</span>
+            </div>
+          `
+              : ''
+          }
+          <div class="total-line">
+            <span>GRAND TOTAL:</span>
+            <span class="font-mono">${formatCurrency(invoice.grandTotal)}</span>
+          </div>
+        </div>
+      </div>
+    </body>
+    </html>
+  `;
+}
+
 export default function InvoiceReceiptModal({ invoice, onClose }) {
   const [paperSize, setPaperSize] = useState('80mm'); // '80mm' | '58mm'
 
   if (!invoice) return null;
 
-  // Bulletproof Isolated Print Handler
+  // Standalone CSS Print Handler (Guaranteed Full Styling in Android PDF & Thermal)
   const handlePrint = () => {
-    const slipElement = document.getElementById('printable-invoice');
-    if (!slipElement) {
-      window.print();
-      return;
-    }
-
-    // Create an isolated hidden iframe for pure 1-page print
     const existingIframe = document.getElementById('receipt-print-iframe');
     if (existingIframe) {
       existingIframe.remove();
@@ -31,70 +309,20 @@ export default function InvoiceReceiptModal({ invoice, onClose }) {
     const iframe = document.createElement('iframe');
     iframe.id = 'receipt-print-iframe';
     iframe.style.position = 'fixed';
-    iframe.style.right = '0';
-    iframe.style.bottom = '0';
-    iframe.style.width = '0';
-    iframe.style.height = '0';
+    iframe.style.top = '-9999px';
+    iframe.style.left = '-9999px';
+    iframe.style.width = '400px';
+    iframe.style.height = '600px';
     iframe.style.border = '0';
+    iframe.style.opacity = '0';
+    iframe.style.pointerEvents = 'none';
     document.body.appendChild(iframe);
 
-    const printWidth = paperSize === '58mm' ? '54mm' : '78mm';
-    const slipHtml = slipElement.outerHTML;
-
-    // Collect all stylesheets from main document
-    let stylesHtml = `
-      <style>
-        @page {
-          size: auto;
-          margin: 0mm;
-        }
-        html, body {
-          margin: 0;
-          padding: 0;
-          background: #ffffff;
-          color: #000000;
-          font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-          width: 100%;
-        }
-        body {
-          padding: 4px;
-          display: flex;
-          justify-content: center;
-        }
-        #printable-invoice {
-          width: ${printWidth} !important;
-          max-width: 100% !important;
-          margin: 0 auto !important;
-          box-shadow: none !important;
-          border: none !important;
-          page-break-inside: avoid !important;
-          break-inside: avoid !important;
-          page-break-after: avoid !important;
-          break-after: avoid !important;
-          -webkit-print-color-adjust: exact !important;
-          print-color-adjust: exact !important;
-        }
-      </style>
-    `;
-
-    document.querySelectorAll('style, link[rel="stylesheet"]').forEach((node) => {
-      stylesHtml += node.outerHTML;
-    });
+    const htmlContent = generatePrintableSlipHtml(invoice, paperSize);
 
     const doc = iframe.contentWindow.document;
     doc.open();
-    doc.write(`
-      <!DOCTYPE html>
-      <html>
-      <head>
-        <title>AZ JEWELERS - Invoice #${invoice.invoiceNo}</title>
-        ${stylesHtml}
-      </head>
-      <body>
-        ${slipHtml}
-      </body>
-      </html>
-    `);
+    doc.write(htmlContent);
     doc.close();
 
     // Trigger print
@@ -103,7 +331,6 @@ export default function InvoiceReceiptModal({ invoice, onClose }) {
         iframe.contentWindow.focus();
         iframe.contentWindow.print();
       } catch (err) {
-        // Fallback to standard window.print if iframe print is restricted
         window.print();
       } finally {
         setTimeout(() => {
@@ -112,7 +339,7 @@ export default function InvoiceReceiptModal({ invoice, onClose }) {
           }
         }, 1500);
       }
-    }, 350);
+    }, 250);
   };
 
   const handleWhatsAppShare = () => {
@@ -187,7 +414,7 @@ Thank you for your business!`;
           </div>
         </div>
 
-        {/* THE ONLY PRINTABLE INVOICE SLIP (Matches image exactly) */}
+        {/* THE PREVIEW INVOICE SLIP (On Screen) */}
         <div
           id="printable-invoice"
           className={`size-${paperSize} p-5 overflow-y-auto space-y-3 text-slate-800 text-xs print:p-2 print:space-y-2.5 print:overflow-visible print:text-black bg-white`}
@@ -198,7 +425,7 @@ Thank you for your business!`;
               AZ JEWELERS
             </h2>
             <p className="text-[11px] text-slate-500 font-mono mt-0.5">
-              Lab Invoice • Gold Testing & Calculation Slip
+              Lab Invoice • Gold Testing &amp; Calculation Slip
             </p>
             <div className="flex justify-between items-center text-xs text-slate-700 mt-2 px-1 font-semibold">
               <span>
@@ -331,7 +558,6 @@ Thank you for your business!`;
               </span>
             </div>
           </div>
-
         </div>
 
         {/* Modal Action Buttons (Hidden in Print) */}
@@ -341,7 +567,7 @@ Thank you for your business!`;
             className="flex-1 flex items-center justify-center gap-2 py-2.5 px-3 bg-[#0b213f] hover:bg-[#08182f] text-white text-xs font-semibold rounded-xl transition-all shadow-sm cursor-pointer active:scale-98"
           >
             <Printer className="w-4 h-4" />
-            Print Slip (1 Page)
+            Print / Save PDF
           </button>
           <button
             onClick={handleWhatsAppShare}
